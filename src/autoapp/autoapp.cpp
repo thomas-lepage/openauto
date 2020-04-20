@@ -71,10 +71,10 @@ void startIOServiceWorkers(boost::asio::io_service& ioService, ThreadPool& threa
 int main(int argc, char* argv[])
 {
     libusb_context* usbContext;
-    if(libusb_init(&usbContext) != 0)
+    int libusb_init_return_value = libusb_init(&usbContext);
+    if (libusb_init_return_value != 0)
     {
-        OPENAUTO_LOG(error) << "[OpenAuto] libusb init failed.";
-        return 1;
+        OPENAUTO_LOG(error) << "[OpenAuto] libusb init failed. (" << libusb_error_name(libusb_init_return_value) << ")";
     }
 
     boost::asio::io_service ioService;
@@ -102,7 +102,7 @@ int main(int argc, char* argv[])
     QObject::connect(&mainWindow, &autoapp::ui::MainWindow::openSettings, &settingsWindow, &autoapp::ui::SettingsWindow::showFullScreen);
     QObject::connect(&mainWindow, &autoapp::ui::MainWindow::openConnectDialog, &connectDialog, &autoapp::ui::ConnectDialog::exec);
 
-    qApplication.setOverrideCursor(Qt::BlankCursor);
+    //qApplication.setOverrideCursor(Qt::BlankCursor);
     QObject::connect(&mainWindow, &autoapp::ui::MainWindow::toggleCursor, [&qApplication]() {
         const auto cursor = qApplication.overrideCursor()->shape() == Qt::BlankCursor ? Qt::ArrowCursor : Qt::BlankCursor;
         qApplication.setOverrideCursor(cursor);

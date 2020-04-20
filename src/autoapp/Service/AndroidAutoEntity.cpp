@@ -60,7 +60,7 @@ void AndroidAutoEntity::start(IAndroidAutoEntityEventHandler& eventHandler)
 
         eventHandler_ = eventHandler;
         std::for_each(serviceList_.begin(), serviceList_.end(), std::bind(&IService::start, std::placeholders::_1));
-        this->schedulePing();
+        //this->schedulePing();
 
         auto versionRequestPromise = aasdk::channel::SendPromise::defer(strand_);
         versionRequestPromise->then([]() {}, std::bind(&AndroidAutoEntity::onChannelError, this->shared_from_this(), std::placeholders::_1));
@@ -76,7 +76,7 @@ void AndroidAutoEntity::stop()
 
         eventHandler_ = nullptr;
         std::for_each(serviceList_.begin(), serviceList_.end(), std::bind(&IService::stop, std::placeholders::_1));
-        pinger_->cancel();
+        //pinger_->cancel();
         messenger_->stop();
         transport_->stop();
         cryptor_->deinit();
@@ -227,7 +227,7 @@ void AndroidAutoEntity::onNavigationFocusRequest(const aasdk::proto::messages::N
     controlServiceChannel_->receive(this->shared_from_this());
 }
 
-void AndroidAutoEntity::onPingResponse(const aasdk::proto::messages::PingResponse&)
+void AndroidAutoEntity::onPingResponse(const aasdk::proto::messages::PingResponse& response)
 {
     pinger_->pong();
     controlServiceChannel_->receive(this->shared_from_this());
@@ -272,6 +272,8 @@ void AndroidAutoEntity::sendPing()
     promise->then([]() {}, std::bind(&AndroidAutoEntity::onChannelError, this->shared_from_this(), std::placeholders::_1));
 
     aasdk::proto::messages::PingRequest request;
+    auto timestamp = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now().time_since_epoch());
+    request.set_timestamp(timestamp.count());
     controlServiceChannel_->sendPingRequest(request, std::move(promise));
 }
 
