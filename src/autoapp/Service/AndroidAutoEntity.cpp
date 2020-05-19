@@ -74,7 +74,6 @@ void AndroidAutoEntity::stop()
     strand_.dispatch([this, self = this->shared_from_this()]() {
         OPENAUTO_LOG(info) << "[AndroidAutoEntity] stop.";
 
-<<<<<<< HEAD
         try {
             eventHandler_ = nullptr;
             std::for_each(serviceList_.begin(), serviceList_.end(), std::bind(&IService::stop, std::placeholders::_1));
@@ -112,14 +111,6 @@ void AndroidAutoEntity::resume()
         } catch (...) {
             OPENAUTO_LOG(info) << "[AndroidAutoEntity] exception in resume.";
         }
-=======
-        eventHandler_ = nullptr;
-        std::for_each(serviceList_.begin(), serviceList_.end(), std::bind(&IService::stop, std::placeholders::_1));
-        //pinger_->cancel();
-        messenger_->stop();
-        transport_->stop();
-        cryptor_->deinit();
->>>>>>> 473abce6d303106ac7282ebe0abfc469bc909876
     });
 }
 
