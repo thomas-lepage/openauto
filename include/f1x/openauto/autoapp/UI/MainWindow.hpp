@@ -20,6 +20,7 @@
 
 #include <memory>
 #include <QMainWindow>
+#include <QFileSystemWatcher>
 
 namespace Ui
 {
@@ -41,15 +42,22 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow() override;
+    QFileSystemWatcher* watcher_tmp;
 
 signals:
     void exit();
     void openSettings();
     void toggleCursor();
     void openConnectDialog();
+    void openAndroidAuto();
+    void TriggerAppStop();
 
 private:
     Ui::MainWindow* ui_;
+
+private slots:
+    void tmpChanged();
+
 };
 
 }

@@ -42,10 +42,13 @@ public:
 
     void start() override;
     void stop() override;
+    void pause() override;
+    void resume() override;
     void fillFeatures(aasdk::proto::messages::ServiceDiscoveryResponse& response) override;
     void onChannelOpenRequest(const aasdk::proto::messages::ChannelOpenRequest& request) override;
     void onAVChannelSetupRequest(const aasdk::proto::messages::AVChannelSetupRequest& request) override;
     void onAVChannelStartIndication(const aasdk::proto::messages::AVChannelStartIndication& indication) override;
+    void onAVChannelStopIndication(const aasdk::proto::messages::AVChannelStopIndication& indication) override;
     void onAVMediaWithTimestampIndication(aasdk::messenger::Timestamp::ValueType timestamp, const aasdk::common::DataConstBuffer& buffer) override;
     void onAVMediaIndication(const aasdk::common::DataConstBuffer& buffer) override;
     void onVideoFocusRequest(const aasdk::proto::messages::VideoFocusRequest& request) override;

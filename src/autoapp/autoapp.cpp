@@ -102,7 +102,7 @@ int main(int argc, char* argv[])
     QObject::connect(&mainWindow, &autoapp::ui::MainWindow::openSettings, &settingsWindow, &autoapp::ui::SettingsWindow::showFullScreen);
     QObject::connect(&mainWindow, &autoapp::ui::MainWindow::openConnectDialog, &connectDialog, &autoapp::ui::ConnectDialog::exec);
 
-    qApplication.setOverrideCursor(Qt::BlankCursor);
+    //qApplication.setOverrideCursor(Qt::BlankCursor);
     QObject::connect(&mainWindow, &autoapp::ui::MainWindow::toggleCursor, [&qApplication]() {
         const auto cursor = qApplication.overrideCursor()->shape() == Qt::BlankCursor ? Qt::ArrowCursor : Qt::BlankCursor;
         qApplication.setOverrideCursor(cursor);
@@ -122,6 +122,46 @@ int main(int argc, char* argv[])
 
     QObject::connect(&connectDialog, &autoapp::ui::ConnectDialog::connectionSucceed, [&app](auto socket) {
         app->start(std::move(socket));
+    });
+
+    // Connect the AA button
+    QObject::connect(&mainWindow, &autoapp::ui::MainWindow::openAndroidAuto, [&app]() {
+        OPENAUTO_LOG(info) << "[Autoapp] TriggerAppStart: Manual start android auto.";
+        try {
+            app->disableAutostartEntity = false;
+            app->resume();
+            app->waitForUSBDevice();
+        } catch (...) {
+            OPENAUTO_LOG(error) << "[Autoapp] TriggerAppStart: app->waitForUSBDevice();";
+        }
+    });
+
+    QObject::connect(&mainWindow, &autoapp::ui::MainWindow::TriggerAppStop, [&app]() {
+        try {
+            if (std::ifstream("/tmp/android_device")) {
+                OPENAUTO_LOG(info) << "[Autoapp] TriggerAppStop: Manual stop usb android auto.";
+                app->disableAutostartEntity = true;
+                //system("/usr/local/bin/autoapp_helper usbreset");
+                usleep(500000);
+                try {
+                    app->stop();
+                } catch (...) {
+                    OPENAUTO_LOG(error) << "[Autoapp] TriggerAppStop: stop();";
+                }
+
+            } else {
+                OPENAUTO_LOG(info) << "[Autoapp] TriggerAppStop: Manual stop wifi android auto.";
+                try {
+                    app->onAndroidAutoQuit();
+                    //app->pause();
+                } catch (...) {
+                    OPENAUTO_LOG(error) << "[Autoapp] TriggerAppStop: stop();";
+                }
+
+            }
+        } catch (...) {
+            OPENAUTO_LOG(info) << "[Autoapp] Exception in manual stop android auto.";
+        }
     });
 
     app->waitForUSBDevice();

@@ -19,6 +19,8 @@
 #include <QApplication>
 #include <f1x/openauto/autoapp/UI/MainWindow.hpp>
 #include "ui_mainwindow.h"
+#include <f1x/openauto/Common/Log.hpp>
+#include <fstream>
 
 namespace f1x
 {
@@ -34,10 +36,16 @@ MainWindow::MainWindow(QWidget *parent)
     , ui_(new Ui::MainWindow)
 {
     ui_->setupUi(this);
+    connect(ui_->pushButtonAndroidAuto, &QPushButton::clicked, this, &MainWindow::openAndroidAuto);
+    connect(ui_->pushButtonAndroidAutoStop, &QPushButton::clicked, this, &MainWindow::TriggerAppStop);
     connect(ui_->pushButtonSettings, &QPushButton::clicked, this, &MainWindow::openSettings);
     connect(ui_->pushButtonExit, &QPushButton::clicked, this, &MainWindow::exit);
     connect(ui_->pushButtonToggleCursor, &QPushButton::clicked, this, &MainWindow::toggleCursor);
     connect(ui_->pushButtonWirelessConnection, &QPushButton::clicked, this, &MainWindow::openConnectDialog);
+
+    watcher_tmp = new QFileSystemWatcher(this);
+    watcher_tmp->addPath("/tmp");
+    connect(watcher_tmp, &QFileSystemWatcher::directoryChanged, this, &MainWindow::tmpChanged);
 }
 
 MainWindow::~MainWindow()
@@ -48,4 +56,16 @@ MainWindow::~MainWindow()
 }
 }
 }
+}
+
+void f1x::openauto::autoapp::ui::MainWindow::tmpChanged()
+{
+    try {
+        if (std::ifstream("/tmp/entityexit")) {
+            MainWindow::TriggerAppStop();
+            std::remove("/tmp/entityexit");
+        }
+    } catch (...) {
+        OPENAUTO_LOG(error) << "[OpenAuto] Error in entityexit";
+    }
 }
