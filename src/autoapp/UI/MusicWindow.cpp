@@ -20,7 +20,10 @@
 #include "ui_musicwindow.h"
 #include <fstream>
 #include <QStyle>
-#include <QTimer>
+#include <QMediaMetaData>
+#include <QImage>
+#include <QStringList>
+#include <QUrl>
 
 namespace f1x
 {
@@ -39,26 +42,35 @@ MusicWindow::MusicWindow(QWidget *parent)
     connect(ui_->pushHomeButton, &QPushButton::clicked, this, &MusicWindow::home);
 
     player = new QMediaPlayer;
-    player->setMedia(QUrl::fromLocalFile("/home/tlepage/test.mp3"));
+    playlist = new QMediaPlaylist();
+    playlist->setPlaybackMode(QMediaPlaylist::Loop);
+
+    QStringList filenames = { "/home/tlepage/test.mp3", "/home/tlepage/test2.mp3" };
+    for(const QString & filename: filenames){
+        playlist->addMedia(QMediaContent(QUrl::fromLocalFile(filename)));
+    }
+
+    player->setPlaylist(playlist);
     player->setVolume(50);
 
-    connect(player, SIGNAL(durationChanged(qint64)), SLOT(durationChanged(qint64)));
-    connect(player, SIGNAL(positionChanged(qint64)), SLOT(positionChanged(qint64)));
+    connect(player, &QMediaPlayer::durationChanged, this, &MusicWindow::durationChanged);
+    connect(player, &QMediaPlayer::positionChanged, this, &MusicWindow::positionChanged);
+    connect(player, QOverload<>::of(&QMediaPlayer::metaDataChanged), this, &MusicWindow::metaDataChanged);
+    connect(ui_->nextButton, &QPushButton::clicked, playlist, &QMediaPlaylist::next);
+    connect(ui_->previousButton, &QPushButton::clicked, this, &MusicWindow::previousClicked);
+    connect(ui_->playPauseButton, &QPushButton::clicked, this, &MusicWindow::playPause);
+
+    metaDataChanged();
 }
 
 MusicWindow::~MusicWindow()
 {
     delete ui_;
+    delete player;
+    delete playlist;
 }
 
-void MusicWindow::load()
-{
-    ui_->lblSongName->setText("Ceci est un test");
-    QPixmap mypix ("/home/tlepage/Pictures/ecole.png");
-    ui_->imgArtwork->setPixmap(mypix);
-}
-
-void MusicWindow::on_playPauseButton_clicked()
+void MusicWindow::playPause()
 {
     if (player->state() == QMediaPlayer::PlayingState) {
         QPixmap pix(":/play.png");
@@ -85,6 +97,38 @@ void MusicWindow::positionChanged(qint64 progress)
         ui_->sliderDuration->setValue(progress / 1000);
     }
     //updateDurationInfo(progress / 1000);
+}
+
+void MusicWindow::metaDataChanged()
+{
+    if (player->isMetaDataAvailable()) {
+        ui_->lblSongName->setText(player->metaData(QMediaMetaData::Title).toString());
+        ui_->lblSongArtist->setText(player->metaData(QMediaMetaData::AlbumArtist).toString());
+        if (ui_->imgArtwork) {
+            QUrl url = player->metaData(QMediaMetaData::CoverArtUrlLarge).value<QUrl>();
+            if (url.isEmpty()) {
+                QImage image = player->metaData(QMediaMetaData::CoverArtImage).value<QImage>();
+                QPixmap pMap = QPixmap::fromImage(image).scaled(ui_->imgArtwork->size(),Qt::KeepAspectRatio);
+                ui_->imgArtwork->setPixmap(pMap);
+
+            } else {
+                ui_->imgArtwork->setPixmap(QPixmap(url.toString()));
+            }
+
+        }
+    }
+}
+
+void MusicWindow::previousClicked()
+{
+    // Go to previous track if we are within the first 5 seconds of playback
+    // Otherwise, seek to the beginning.
+    if(player->position() <= 5000) {
+        playlist->previous();
+    }
+    else {
+        player->setPosition(0);
+    }
 }
 
 }

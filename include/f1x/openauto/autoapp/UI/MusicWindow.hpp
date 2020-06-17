@@ -20,6 +20,7 @@
 
 #include <QWidget>
 #include <QMediaPlayer>
+#include <QMediaPlaylist>
 
 namespace Ui
 {
@@ -48,12 +49,15 @@ signals:
 private:
     Ui::MusicWindow* ui_;
     QMediaPlayer *player;
-    void load();
+    QMediaPlaylist *playlist;
 
 private slots:
-    void on_playPauseButton_clicked();
+    void playPause();
     void durationChanged(qint64 duration);
     void positionChanged(qint64 progress);
+    void previousClicked();
+    void metaDataChanged();
+
 };
 
 }
