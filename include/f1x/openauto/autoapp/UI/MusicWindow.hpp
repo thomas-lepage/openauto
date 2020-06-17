@@ -18,16 +18,12 @@
 
 #pragma once
 
-#include <memory>
-#include <QMainWindow>
-#include <QFileSystemWatcher>
-#include <f1x/openauto/autoapp/UI/MusicWindow.hpp>
-#include <f1x/openauto/autoapp/UI/SettingsWindow.hpp>
-#include <f1x/openauto/autoapp/Configuration/Configuration.hpp>
+#include <QWidget>
+#include <QMediaPlayer>
 
 namespace Ui
 {
-class MainWindow;
+class MusicWindow;
 }
 
 namespace f1x
@@ -39,33 +35,25 @@ namespace autoapp
 namespace ui
 {
 
-class MainWindow : public QMainWindow
+class MusicWindow : public QWidget
 {
     Q_OBJECT
 public:
-    explicit MainWindow(QWidget *parent = nullptr);
-    ~MainWindow() override;
-    QFileSystemWatcher* watcher_tmp;
+    explicit MusicWindow(QWidget *parent = nullptr);
+    ~MusicWindow() override;
 
 signals:
-    void exit();
-    void openSettings();
-    void toggleCursor();
-    void openConnectDialog();
-    void openAndroidAuto();
-    void TriggerAppStop();
-    void openMusicPlayer();
+    void home();
 
 private:
-    Ui::MainWindow* ui_;
+    Ui::MusicWindow* ui_;
+    QMediaPlayer *player;
+    void load();
 
 private slots:
-    void tmpChanged();
-    void showTime();
-    void moveHome();
-
-    void on_pushMusicPlayer_clicked();
-    void on_pushButtonSettings_clicked();
+    void on_playPauseButton_clicked();
+    void durationChanged(qint64 duration);
+    void positionChanged(qint64 progress);
 };
 
 }

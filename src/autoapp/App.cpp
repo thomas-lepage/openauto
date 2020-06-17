@@ -204,6 +204,25 @@ void App::waitForDevice()
     usbHub_->start(std::move(promise));
 }
 
+void App::manualStart() {
+    //usbHub_->cancel();
+    // auto promise = aasdk::usb::IUSBHub::Promise::defer(strand_);
+    // promise->then(std::bind(&App::aoapDeviceHandler, this->shared_from_this(), std::placeholders::_1),
+    //               std::bind(&App::onUSBHubError, this->shared_from_this(), std::placeholders::_1));
+    // usbHub_->manualStart(std::move(promise));
+
+    /*auto promise = aasdk::usb::IConnectedAccessoriesEnumerator::Promise::defer(strand_);
+    promise->then([this, self = this->shared_from_this()](auto result) {
+        OPENAUTO_LOG(info) << "[App] Devices enumeration result: " << result;
+        self->aoapDeviceHandler(actualDeviceIter);
+    },
+    [this, self = this->shared_from_this()](auto e) {
+        OPENAUTO_LOG(error) << "[App] Devices enumeration failed: " << e.what();
+    });
+
+    connectedAccessoriesEnumerator_->enumerate(std::move(promise));*/
+}
+
 void App::onAndroidAutoQuit()
 {
     strand_.dispatch([this, self = this->shared_from_this()]() {

@@ -48,7 +48,7 @@ public:
     void resume();
     void onAndroidAutoQuit() override;
     bool disableAutostartEntity = false;
-
+    void manualStart();
 private:
     using std::enable_shared_from_this<App>::shared_from_this;
     void enumerateDevices();

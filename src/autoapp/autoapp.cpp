@@ -31,6 +31,7 @@
 #include <f1x/openauto/autoapp/Service/ServiceFactory.hpp>
 #include <f1x/openauto/autoapp/Configuration/Configuration.hpp>
 #include <f1x/openauto/autoapp/UI/MainWindow.hpp>
+#include <f1x/openauto/autoapp/UI/MusicWindow.hpp>
 #include <f1x/openauto/autoapp/UI/SettingsWindow.hpp>
 #include <f1x/openauto/autoapp/UI/ConnectDialog.hpp>
 #include <f1x/openauto/Common/Log.hpp>
@@ -99,7 +100,6 @@ int main(int argc, char* argv[])
     connectDialog.setWindowFlags(Qt::WindowStaysOnTopHint);
 
     QObject::connect(&mainWindow, &autoapp::ui::MainWindow::exit, []() { std::exit(0); });
-    QObject::connect(&mainWindow, &autoapp::ui::MainWindow::openSettings, &settingsWindow, &autoapp::ui::SettingsWindow::showFullScreen);
     QObject::connect(&mainWindow, &autoapp::ui::MainWindow::openConnectDialog, &connectDialog, &autoapp::ui::ConnectDialog::exec);
 
     //qApplication.setOverrideCursor(Qt::BlankCursor);
@@ -127,13 +127,15 @@ int main(int argc, char* argv[])
     // Connect the AA button
     QObject::connect(&mainWindow, &autoapp::ui::MainWindow::openAndroidAuto, [&app]() {
         OPENAUTO_LOG(info) << "[Autoapp] TriggerAppStart: Manual start android auto.";
-        try {
+
+        app->manualStart();
+        /*try {
             app->disableAutostartEntity = false;
             app->resume();
             app->waitForUSBDevice();
         } catch (...) {
             OPENAUTO_LOG(error) << "[Autoapp] TriggerAppStart: app->waitForUSBDevice();";
-        }
+        }*/
     });
 
     QObject::connect(&mainWindow, &autoapp::ui::MainWindow::TriggerAppStop, [&app]() {

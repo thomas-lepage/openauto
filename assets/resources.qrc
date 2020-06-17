@@ -4,5 +4,12 @@
         <file>ico_warning.png</file>
         <file>ico_setting.png</file>
         <file>ico_info.png</file>
+        <file>previous.png</file>
+        <file>next.png</file>
+        <file>play.png</file>
+        <file>pause.png</file>
+        <file>home.png</file>
+        <file>music.png</file>
+        <file>settings.png</file>
     </qresource>
 </RCC>

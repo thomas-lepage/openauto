@@ -51,6 +51,9 @@ private slots:
     void onUpdateScreenDPI(int value);
     void onShowBindings();
 
+signals:
+    void home();
+
 private:
     void showEvent(QShowEvent* event);
     void load();

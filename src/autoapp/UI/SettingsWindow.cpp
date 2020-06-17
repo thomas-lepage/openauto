@@ -35,7 +35,6 @@ SettingsWindow::SettingsWindow(configuration::IConfiguration::Pointer configurat
     , configuration_(std::move(configuration))
 {
     ui_->setupUi(this);
-    connect(ui_->pushButtonCancel, &QPushButton::clicked, this, &SettingsWindow::close);
     connect(ui_->pushButtonSave, &QPushButton::clicked, this, &SettingsWindow::onSave);
     connect(ui_->horizontalSliderScreenDPI, &QSlider::valueChanged, this, &SettingsWindow::onUpdateScreenDPI);
     connect(ui_->radioButtonUseExternalBluetoothAdapter, &QRadioButton::clicked, [&](bool checked) { ui_->lineEditExternalBluetoothAdapterAddress->setEnabled(checked); });
@@ -45,6 +44,8 @@ SettingsWindow::SettingsWindow(configuration::IConfiguration::Pointer configurat
     connect(ui_->pushButtonSelectAll, &QPushButton::clicked, std::bind(&SettingsWindow::setButtonCheckBoxes, this, true));
     connect(ui_->pushButtonResetToDefaults, &QPushButton::clicked, this, &SettingsWindow::onResetToDefaults);
     connect(ui_->pushButtonShowBindings, &QPushButton::clicked, this, &SettingsWindow::onShowBindings);
+    connect(ui_->pushButtonCancel, &QPushButton::clicked, this, &SettingsWindow::home);
+
 }
 
 SettingsWindow::~SettingsWindow()
@@ -100,7 +101,7 @@ void SettingsWindow::onSave()
     configuration_->setAudioOutputBackendType(ui_->radioButtonRtAudio->isChecked() ? configuration::AudioOutputBackendType::RTAUDIO : configuration::AudioOutputBackendType::QT);
 
     configuration_->save();
-    this->close();
+    emit home();
 }
 
 void SettingsWindow::onResetToDefaults()
